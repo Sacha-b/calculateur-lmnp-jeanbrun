@@ -73,12 +73,49 @@ function pvSurtax(pv) {
   return 0.06 * pv;
 }
 
+// ==================== TOOLTIP COMPONENT ====================
+function InfoBulle({ text }) {
+  const [show, setShow] = React.useState(false);
+  return (
+    <span
+      style={{ position: "relative", display: "inline-flex", alignItems: "center", marginLeft: 5, cursor: "help" }}
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+      onClick={() => setShow((s) => !s)}
+    >
+      <span style={{
+        display: "inline-flex", alignItems: "center", justifyContent: "center",
+        width: 16, height: 16, borderRadius: "50%", backgroundColor: "#1ab5b7",
+        color: "#fff", fontSize: "0.625rem", fontWeight: 700, lineHeight: 1,
+        fontFamily: "'Manrope', sans-serif", userSelect: "none",
+      }}>?</span>
+      {show && (
+        <span style={{
+          position: "absolute", bottom: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)",
+          backgroundColor: "#1e293b", color: "#f1f5f9", fontSize: "0.75rem", fontWeight: 400,
+          lineHeight: 1.45, padding: "8px 12px", borderRadius: 8, width: 220, textAlign: "left",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.25)", zIndex: 50, fontFamily: "'Manrope', sans-serif",
+          textTransform: "none", letterSpacing: "normal",
+          pointerEvents: "none",
+        }}>
+          {text}
+          <span style={{
+            position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
+            width: 0, height: 0, borderLeft: "6px solid transparent", borderRight: "6px solid transparent",
+            borderTop: "6px solid #1e293b",
+          }} />
+        </span>
+      )}
+    </span>
+  );
+}
+
 // ==================== INPUT COMPONENT ====================
-function Input({ label, value, onChange, suffix, min, max, step, note, type = "number" }) {
+function Input({ label, value, onChange, suffix, min, max, step, note, type = "number", tooltip }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <label style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "#64748b", fontFamily: "'Manrope', sans-serif" }}>
-        {label}
+      <label style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "#64748b", fontFamily: "'Manrope', sans-serif", display: "flex", alignItems: "center" }}>
+        {label}{tooltip && <InfoBulle text={tooltip} />}
       </label>
       <div style={{ position: "relative" }}>
         <input
@@ -113,11 +150,11 @@ function Input({ label, value, onChange, suffix, min, max, step, note, type = "n
   );
 }
 
-function Select({ label, value, onChange, options, note }) {
+function Select({ label, value, onChange, options, note, tooltip }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <label style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "#64748b", fontFamily: "'Manrope', sans-serif" }}>
-        {label}
+      <label style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "#64748b", fontFamily: "'Manrope', sans-serif", display: "flex", alignItems: "center" }}>
+        {label}{tooltip && <InfoBulle text={tooltip} />}
       </label>
       <select
         value={value}
@@ -423,6 +460,9 @@ function Comparateur({ onBack }) {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
             <Input label="Prix d'acquisition (HF)" value={prix} onChange={setPrix} suffix="€" min={0} step={5000} note="Hors frais de notaire" />
+            <Input label="Loyer marché mensuel" value={loyerMarche} onChange={setLoyerMarche} suffix="€/mois" min={0} step={50} tooltip="Il s'agit du prix du marché pour le loyer" />
+            <Input label="Charges annuelles" value={charges} onChange={setCharges} suffix="€/an" min={0} step={100} note="TF, assurance, gestion…" />
+            <Input label="Salaire net annuel du foyer" value={revenu} onChange={setRevenu} suffix="€/an" min={0} step={1000} note={`TMI actuelle : ${fmtP(R.mr)}`} />
             <Select
               label="Type de bien (Jeanbrun)"
               value={typeBien}
@@ -443,7 +483,6 @@ function Comparateur({ onBack }) {
                 note={travauxValid ? `Min. 30 % : ${fmtE(travauxMin)}` : `⚠️ Min. requis : ${fmtE(travauxMin)}`}
               />
             )}
-            <Input label="Loyer marché mensuel" value={loyerMarche} onChange={setLoyerMarche} suffix="€/mois" min={0} step={50} />
             <Select
               label="Niveau Jeanbrun"
               value={niveau}
@@ -454,11 +493,10 @@ function Comparateur({ onBack }) {
                 { value: "très_social", label: "Très social (−45 %)" },
               ]}
               note={`Loyer JB : ${fmtE(Math.round(loyerMarche * (1 - JB[niveau].décote)))} /mois`}
+              tooltip="Le montant du loyer sera réduit en fonction du choix. En contrepartie le taux d'amortissement augmentera."
             />
-            <Input label="Taux amort. LMNP" value={tauxLMNP} onChange={setTauxLMNP} suffix="%" min={2} max={5} step={0.1} note="Comptable : 2,5 à 4 %" />
-            <Input label="Salaire net annuel du foyer" value={revenu} onChange={setRevenu} suffix="€/an" min={0} step={1000} note={`TMI actuelle : ${fmtP(R.mr)}`} />
-            <Input label="Charges annuelles" value={charges} onChange={setCharges} suffix="€/an" min={0} step={100} note="TF, assurance, gestion…" />
-            <Input label="Durée de détention" value={duree} onChange={setDuree} suffix="ans" min={1} max={40} note={`Revente estimée : ${fmtE(R.prixVente)} (+1,6 %/an)`} />
+            <Input label="Taux amort. LMNP" value={tauxLMNP} onChange={setTauxLMNP} suffix="%" min={2} max={5} step={0.1} note="Comptable : 2,5 à 4 %" tooltip="Ce taux est à faire calculer précisément par un spécialiste." />
+            <Input label="Durée de détention" value={duree} onChange={setDuree} suffix="ans" min={1} max={40} note={`Revente estimée : ${fmtE(R.prixVente)} (+1,6 %/an)`} tooltip="Le prix du bien est calculé en fonction du taux d'inflation moyen." />
           </div>
         </div>
 
