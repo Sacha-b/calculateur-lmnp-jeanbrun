@@ -173,11 +173,10 @@ export default function App() {
   const [loyerMarche, setLoyerMarche] = useState(800);
   const [niveau, setNiveau] = useState("intermédiaire");
   const [revenu, setRevenu] = useState(35000);
-  const [parts, setParts] = useState(1);
+  const parts = 1;
   const [charges, setCharges] = useState(2400);
   const [tauxLMNP, setTauxLMNP] = useState(3.0);
   const [duree, setDuree] = useState(15);
-  const [prixVente, setPrixVente] = useState(260000);
   const [tab, setTab] = useState("annuel");
 
   const travauxMin = Math.ceil(prix * 0.3);
@@ -186,6 +185,10 @@ export default function App() {
   // ==================== CALCULATIONS ====================
   const R = useMemo(() => {
     const jb = JB[niveau];
+
+    // --- PRIX DE REVENTE (inflation 1,6 %/an) ---
+    const baseValeur = typeBien === "neuf" ? prix : prix + travaux;
+    const prixVente = Math.round(baseValeur * Math.pow(1.016, duree));
 
     // --- JEANBRUN ANNUAL ---
     const loyerJB = Math.round(loyerMarche * (1 - jb.décote)) * 12;
@@ -326,6 +329,7 @@ export default function App() {
     ];
 
     return {
+      prixVente,
       loyerJB, baseJB, tauxJBVal, amortCalcJB, amortJB, foncierBrut, foncierNet,
       irJB, psJB, taxJB, netJB, deficitJB,
       loyerLMNP, baseLMNP, amortCalcLMNP, amortDedLMNP, amortRepLMNP,
@@ -343,7 +347,7 @@ export default function App() {
       mrJB: foncierNet > 0 ? margRate(revenu + foncierNet, parts) : margRate(revenu, parts),
       mrLMNP: bicNet > 0 ? margRate(revenu + bicNet, parts) : margRate(revenu, parts),
     };
-  }, [prix, typeBien, travaux, loyerMarche, niveau, revenu, parts, charges, tauxLMNP, duree, prixVente]);
+  }, [prix, typeBien, travaux, loyerMarche, niveau, revenu, charges, tauxLMNP, duree]);
 
   // ==================== RENDER ====================
   const JB_COLOR = "#0e7c7b";
@@ -441,11 +445,9 @@ export default function App() {
               note={`Loyer JB : ${fmtE(Math.round(loyerMarche * (1 - JB[niveau].décote)))} /mois`}
             />
             <Input label="Taux amort. LMNP" value={tauxLMNP} onChange={setTauxLMNP} suffix="%" min={2} max={5} step={0.1} note="Comptable : 2,5 à 4 %" />
-            <Input label="Revenu net imposable" value={revenu} onChange={setRevenu} suffix="€/an" min={0} step={1000} note={`TMI actuelle : ${fmtP(R.mr)}`} />
-            <Input label="Parts fiscales" value={parts} onChange={setParts} suffix="parts" min={1} max={10} step={0.5} />
+            <Input label="Salaire net annuel du foyer" value={revenu} onChange={setRevenu} suffix="€/an" min={0} step={1000} note={`TMI actuelle : ${fmtP(R.mr)}`} />
             <Input label="Charges annuelles" value={charges} onChange={setCharges} suffix="€/an" min={0} step={100} note="TF, assurance, gestion…" />
-            <Input label="Durée de détention" value={duree} onChange={setDuree} suffix="ans" min={1} max={40} />
-            <Input label="Prix de revente estimé" value={prixVente} onChange={setPrixVente} suffix="€" min={0} step={5000} />
+            <Input label="Durée de détention" value={duree} onChange={setDuree} suffix="ans" min={1} max={40} note={`Revente estimée : ${fmtE(R.prixVente)} (+1,6 %/an)`} />
           </div>
         </div>
 
@@ -642,7 +644,7 @@ export default function App() {
               <div style={{ marginTop: 12, marginBottom: 8, fontSize: "0.6875rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 Calcul de la plus-value
               </div>
-              <Row label="Prix de revente" jb={fmtE(prixVente)} lmnp={fmtE(prixVente)} />
+              <Row label="Prix de revente" jb={fmtE(R.prixVente)} lmnp={fmtE(R.prixVente)} />
               <Row label="− Prix corrigé" jb={fmtE(-R.prixCorrige)} lmnp={fmtE(-R.prixCorrige)} />
               <Row label="= PV hors réintégration" jb={fmtE(R.pvBruteBase)} lmnp={fmtE(R.pvBruteBase)} />
               <Row
@@ -679,8 +681,8 @@ export default function App() {
               />
               <Row
                 label="Gain net de cession"
-                jb={fmtE(prixVente - prix - R.pvJB.total)}
-                lmnp={fmtE(prixVente - prix - R.pvLMNP.total)}
+                jb={fmtE(R.prixVente - prix - R.pvJB.total)}
+                lmnp={fmtE(R.prixVente - prix - R.pvLMNP.total)}
                 bold
               />
 
