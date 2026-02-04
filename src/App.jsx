@@ -76,11 +76,11 @@ function pvSurtax(pv) {
 // ==================== INPUT COMPONENT ====================
 function Input({ label, value, onChange, suffix, min, max, step, note, type = "number" }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold tracking-wide uppercase" style={{ color: "#64748b", fontFamily: "'Manrope', sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <label style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "#64748b", fontFamily: "'Manrope', sans-serif" }}>
         {label}
       </label>
-      <div className="relative">
+      <div style={{ position: "relative" }}>
         <input
           type={type}
           value={value}
@@ -88,62 +88,67 @@ function Input({ label, value, onChange, suffix, min, max, step, note, type = "n
           min={min}
           max={max}
           step={step || 1}
-          className="w-full rounded-lg border px-3 py-2.5 text-sm font-medium outline-none transition-all focus:ring-2"
           style={{
-            borderColor: "#e2e8f0",
+            width: "100%",
+            borderRadius: 8,
+            border: "1px solid #e2e8f0",
+            padding: "10px 12px",
+            fontSize: "0.875rem",
+            fontWeight: 500,
             fontFamily: "'Manrope', sans-serif",
             color: "#1e293b",
             backgroundColor: "#fff",
+            outline: "none",
+            boxSizing: "border-box",
           }}
         />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium" style={{ color: "#94a3b8" }}>
+          <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: "0.75rem", fontWeight: 500, color: "#94a3b8" }}>
             {suffix}
           </span>
         )}
       </div>
-      {note && <span className="text-xs" style={{ color: "#94a3b8" }}>{note}</span>}
+      {note && <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{note}</span>}
     </div>
   );
 }
 
 function Select({ label, value, onChange, options, note }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold tracking-wide uppercase" style={{ color: "#64748b", fontFamily: "'Manrope', sans-serif" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <label style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "#64748b", fontFamily: "'Manrope', sans-serif" }}>
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border px-3 py-2.5 text-sm font-medium outline-none transition-all focus:ring-2"
-        style={{ borderColor: "#e2e8f0", fontFamily: "'Manrope', sans-serif", color: "#1e293b", backgroundColor: "#fff" }}
+        style={{ width: "100%", borderRadius: 8, border: "1px solid #e2e8f0", padding: "10px 12px", fontSize: "0.875rem", fontWeight: 500, fontFamily: "'Manrope', sans-serif", color: "#1e293b", backgroundColor: "#fff", outline: "none", cursor: "pointer", boxSizing: "border-box" }}
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
-      {note && <span className="text-xs" style={{ color: "#94a3b8" }}>{note}</span>}
+      {note && <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{note}</span>}
     </div>
   );
 }
 
 // ==================== DETAIL ROW ====================
 function Row({ label, jb, lmnp, bold, highlight, indent }) {
-  const style = bold
+  const s = bold
     ? { fontWeight: 700, fontSize: "0.95rem" }
     : { fontWeight: 500, fontSize: "0.8125rem" };
   const bgJB = highlight === "jb" ? "rgba(26,181,183,0.08)" : "transparent";
   const bgLMNP = highlight === "lmnp" ? "rgba(232,74,62,0.06)" : "transparent";
   return (
-    <div className="grid grid-cols-3 items-center border-b" style={{ borderColor: "#f1f5f9" }}>
-      <div className="py-2 pr-2" style={{ ...style, color: "#475569", paddingLeft: indent ? 16 : 0, fontFamily: "'Manrope', sans-serif" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", alignItems: "center", borderBottom: "1px solid #f1f5f9" }}>
+      <div style={{ ...s, color: "#475569", paddingLeft: indent ? 16 : 0, paddingTop: 8, paddingBottom: 8, paddingRight: 8, fontFamily: "'Manrope', sans-serif" }}>
         {label}
       </div>
-      <div className="py-2 text-right pr-4" style={{ ...style, color: "#0e7c7b", background: bgJB, fontFamily: "'Crimson Pro', serif" }}>
+      <div style={{ ...s, color: "#0e7c7b", background: bgJB, textAlign: "right", paddingRight: 16, paddingTop: 8, paddingBottom: 8, fontFamily: "'Crimson Pro', serif" }}>
         {jb}
       </div>
-      <div className="py-2 text-right pr-4" style={{ ...style, color: "#c43a30", background: bgLMNP, fontFamily: "'Crimson Pro', serif" }}>
+      <div style={{ ...s, color: "#c43a30", background: bgLMNP, textAlign: "right", paddingRight: 16, paddingTop: 8, paddingBottom: 8, fontFamily: "'Crimson Pro', serif" }}>
         {lmnp}
       </div>
     </div>
@@ -154,10 +159,10 @@ function Row({ label, jb, lmnp, bold, highlight, indent }) {
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload) return null;
   return (
-    <div className="rounded-lg p-3 shadow-lg" style={{ backgroundColor: "#1e293b", border: "1px solid #334155" }}>
-      <p className="text-xs font-semibold mb-1" style={{ color: "#e2e8f0", fontFamily: "'Manrope', sans-serif" }}>{label}</p>
+    <div style={{ borderRadius: 8, padding: 12, boxShadow: "0 10px 15px rgba(0,0,0,0.2)", backgroundColor: "#1e293b", border: "1px solid #334155" }}>
+      <p style={{ fontSize: "0.75rem", fontWeight: 600, marginBottom: 4, margin: 0, color: "#e2e8f0", fontFamily: "'Manrope', sans-serif" }}>{label}</p>
       {payload.map((p, i) => (
-        <p key={i} className="text-xs" style={{ color: p.color, fontFamily: "'Crimson Pro', serif" }}>
+        <p key={i} style={{ fontSize: "0.75rem", margin: "2px 0", color: p.color, fontFamily: "'Crimson Pro', serif" }}>
           {p.name}: {fmtE(p.value)}
         </p>
       ))}
@@ -518,7 +523,7 @@ export default function App() {
           {/* ===== BILAN ANNUEL ===== */}
           {tab === "annuel" && (
             <div>
-              <div className="grid grid-cols-3 items-center border-b pb-2 mb-1" style={{ borderColor: "#e2e8f0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", alignItems: "center", borderBottom: "1px solid #e2e8f0", paddingBottom: 8, marginBottom: 4 }}>
                 <div style={{ fontWeight: 700, fontSize: "0.75rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}></div>
                 <div style={{ fontWeight: 700, fontSize: "0.75rem", color: JB_COLOR, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right", paddingRight: 16 }}>
                   Jeanbrun
@@ -619,7 +624,7 @@ export default function App() {
           {/* ===== PLUS-VALUE ===== */}
           {tab === "pv" && (
             <div>
-              <div className="grid grid-cols-3 items-center border-b pb-2 mb-1" style={{ borderColor: "#e2e8f0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", alignItems: "center", borderBottom: "1px solid #e2e8f0", paddingBottom: 8, marginBottom: 4 }}>
                 <div></div>
                 <div style={{ fontWeight: 700, fontSize: "0.75rem", color: JB_COLOR, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right", paddingRight: 16 }}>
                   Jeanbrun
@@ -699,7 +704,7 @@ export default function App() {
           {/* ===== BILAN GLOBAL ===== */}
           {tab === "global" && (
             <div>
-              <div className="grid grid-cols-3 items-center border-b pb-2 mb-1" style={{ borderColor: "#e2e8f0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", alignItems: "center", borderBottom: "1px solid #e2e8f0", paddingBottom: 8, marginBottom: 4 }}>
                 <div></div>
                 <div style={{ fontWeight: 700, fontSize: "0.75rem", color: JB_COLOR, textTransform: "uppercase", letterSpacing: "0.05em", textAlign: "right", paddingRight: 16 }}>
                   Jeanbrun
